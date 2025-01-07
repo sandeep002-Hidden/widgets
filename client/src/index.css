@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+  font-family: ca
+}
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes spin {
+  from {
+    --angle: 0deg;
+  }
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* Apply the animation only in dark mode */
+@media (prefers-color-scheme: dark) {
+  .dark-login-div::after,
+  .dark-login-div::before {
+    --angle: 0deg;
+    content: '';
+    position: absolute;
+    height: 104%;
+    width: 102%;
+    background-image: conic-gradient(from var(--angle), #ff4545, #00ff99, #006aff, #ff0095);
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    z-index: -1;
+    padding: 3px;
+    border-radius: 10px;
+    animation: 3s spin linear infinite;
+    animation-delay: 1.5s;
+  }
+
+  .dark-login-div::before {
+    filter: blur(8em);
+    opacity: .6;
+  }
+}
+
+.animateGradientText {
+  background: linear-gradient(123deg, #00bfff, #9a1eff, #00ced1);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: gradient 4s ease infinite;
+}
+
+@keyframes gradient {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
