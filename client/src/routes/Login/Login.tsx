@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 // import LoadingSpinner from "@/components/Loading/Loading";
@@ -31,18 +31,23 @@ export default function Login() {
       setIsDisable(true);
     }
   }, [user]);
-  const handelClick = async () => {
+  const handleClick = async () => {
     if (loading) return;
+
     try {
       setLoading(true);
-      // console.log("backend uri", import.meta.env.VITE_BACKEND_URI)
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URI}/auth/login`,
-        { cred: user.UserNameOrEmail, password: user.Password }
+        {
+          cred: user.UserNameOrEmail,
+          password: user.Password,
+        }
       );
-      console.log(response);
-    } catch (error:any) {
-      setMessage({ ...message, Message: error.message, isGood: false });
+      setMessage({ ...message, Message: response.data.message, isGood: true });
+    } catch (error) {
+      const err = error as AxiosError;
+      const errorMessage = err.response?.data?.message! || "An error occurred";
+      setMessage({ ...message, Message: errorMessage, isGood: false });
     } finally {
       setLoading(false);
     }
@@ -67,7 +72,7 @@ export default function Login() {
         <div className="flex flex-col h-full items-center justify-center">
           <div className=" flex flex-col">
             <p className="text-lg text-gray-950 font-semibold dark:text-gray-50 text-left">
-              Enter Your UserName or Password
+              Enter Your UserName or Email
             </p>
             <input
               onChange={(e) => {
@@ -81,7 +86,7 @@ export default function Login() {
               className="block h-6 p-4 border text-black bg-white border-black dark:border-white rounded-lg font-semibold text-sm mb-2"
             />
             <p className="text-lg text-gray-950 font-semibold dark:text-gray-50 text-left">
-              Please sign in to your account
+              Enter your password
             </p>
             <input
               onChange={(e) => {
@@ -95,7 +100,7 @@ export default function Login() {
           <div className="flex items-center flex-col mt-4">
             <button
               disabled={isDisable}
-              onClick={handelClick}
+              onClick={handleClick}
               className="shadow-[0_0_0_3px_#000000_inset] px-6 py-2 bg-transparent border border-black dark:border-white dark:text-white text-black rounded-lg font-bold transform hover:-translate-y-1 transition duration-400"
             >
               SignIn

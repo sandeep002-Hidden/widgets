@@ -17,7 +17,6 @@ const uploadOnCloudinary=async(localFilePath)=>{
             resource_type:"auto",
             folder: "StellerForge"
         })
-        console.log("Uploaded Successfully",response.url)
         fs.unlinkSync(localFilePath)
         return response
     } catch (error) {
@@ -28,7 +27,6 @@ const uploadOnCloudinary=async(localFilePath)=>{
 const deleteFromCloudinary=async(publicId)=>{
     try {
         const result=await cloudinary.uploader.destroy(publicId)
-        console.log("deted from Cloudinary")
         return result
     } catch (error) {
         console.log("error in deleing Cloudinary",error)

@@ -28,3 +28,52 @@ app.post("/users", async (req, res) => {
   });
   
   
+    const handleClick = async () => {
+    if (loading) return;
+
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URI}/auth/login`,
+        {
+          cred: user.UserNameOrEmail,
+          password: user.Password,
+        }
+      );
+      console.log(res)
+      // Handle successful response
+      // if (status === 200 && data.success) {
+      //   // You can access response data like this:
+      //   const { message, user } = data;
+
+      //   setMessage({
+      //     Message: message || "Login successful!",
+      //     isGood: true,
+      //   });
+
+      //   if (user) {
+      //     setUser(user);
+      //     // Or using context
+      //     // userContext.setUser(user);
+      //   }
+
+      // You can also store data in localStorage if needed
+      // localStorage.setItem('user', JSON.stringify(user));
+
+      // Navigate to dashboard or home page
+      // navigate('/dashboard');
+      // }
+    } catch (error) {
+      const err = error as AxiosError;
+      const errorMessage = err.response?.data || "An error occurred";
+
+      // setMessage({
+      //   Message: errorMessage,
+      //   isGood: false
+      // });
+
+      // console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
