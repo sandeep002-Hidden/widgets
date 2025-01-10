@@ -29,8 +29,8 @@ body::-webkit-scrollbar{
     --angle: 0deg;
     content: '';
     position: absolute;
-    height: 104%;
-    width: 102%;
+    height: 102%;
+    width: 101%;
     background-image: conic-gradient(from var(--angle), #ff4545, #00ff99, #006aff, #ff0095);
     top: 50%;
     left: 50%;

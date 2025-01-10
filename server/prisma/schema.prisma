@@ -9,6 +9,7 @@ generator client {
 
 model User {
   id          String    @id @default(cuid())
+  ProfilePicture String? 
   FirstName   String
   LastName    String
   Email       String    @unique
@@ -23,14 +24,53 @@ model User {
 }
 
 model Project {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   CreatorId   String
-  Creator     User     @relation("UserProjects", fields: [CreatorId], references: [id])
+  Creator     User          @relation("UserProjects", fields: [CreatorId], references: [id])
   Name        String
   Description String
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  RootFolder  Folder?       @relation("ProjectRootFolder")
+  Folders     Folder[]      @relation("ProjectFolders")
+  Files       ProjectFile[]
+  Thumbnail   String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   @@index([CreatorId])
+}
+
+model Folder {
+  id            String        @id @default(cuid())
+  name          String
+  projectId     String
+  project       Project       @relation("ProjectFolders", fields: [projectId], references: [id], onDelete: Cascade)
+  parentId      String?
+  parent        Folder?       @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  subFolders    Folder[]      @relation("FolderHierarchy")
+  files         ProjectFile[]
+  isRoot        Boolean       @default(false)
+  rootProject   Project?      @relation("ProjectRootFolder", fields: [rootProjectId], references: [id])
+  rootProjectId String?       @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([projectId])
+  @@index([parentId])
+}
+
+model ProjectFile {
+  id        String   @id @default(cuid())
+  name      String
+  path      String   
+  size      Int       
+  type      String   
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  folderId  String?
+  folder    Folder?  @relation(fields: [folderId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([folderId])
 }

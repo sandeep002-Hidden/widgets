@@ -1,45 +1,29 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import dotenv from "dotenv"
+import cors from "cors"
+import cookieParser from "cookie-parser";
+import AuthRouter from "../route/auth.router.js"
+import prisma from "../prisma/prisma.js";
 
-const prisma = new PrismaClient();
 const app = express();
 
+
+app.use(cors({
+    origin:process.env.CORS_ORIGIN,
+}))
+dotenv.config({
+  path:"./env"
+})
 app.use(express.json());
+app.use(cookieParser())
 
-app.post("/users", async (req, res) => {
-  try {
-    const { FirstName, LastName, Email, UserName, Password } = req.body;
-    const user = await prisma.user.create({
-      data: {
-        FirstName,
-        LastName,
-        Email,
-        UserName,
-        Password,
-      },
-    });
-    res.json(user);
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: "Unable to create user",message:error.message,success:false });
-  }
-});
+app.use("/api/v1/users/auth",AuthRouter)
 
-app.get("/users", async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: "Unable to fetch users" });
-  }
-});
-
-// Graceful shutdown
 process.on("beforeExit", async () => {
   await prisma.$disconnect();
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

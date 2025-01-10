@@ -6,20 +6,88 @@ import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { FileUpload } from "../../components/ui/file-upload";
-
+import axios from "axios";
+interface userDetaill {
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  UserName: string;
+  Password: string;
+  ProfilePicture: File;
+}
 export default function Signup() {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted");
-  };
-  const [file, setFile] = useState<File | null>(null);
-  const [seePassword, setSeePassword] = useState(false);
-  const handleFileUpload = (file: File | null) => {
-    setFile(file);
-  };
+  const [user, setUser] = useState<userDetaill>({
+    FirstName: "",
+    LastName: "",
+    Email: "",
+    UserName: "",
+    Password: "",
+    ProfilePicture: null as unknown as File,
+  });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isDisable, setIsDisable] = useState<boolean>(true);
+  const [seePassword, setSeePassword] = useState<boolean>(false);
+
+  const [message, setMessage] = useState({
+    Message: "",
+    isGood: false,
+  });
   useEffect(() => {
-    console.log(file);
-  }, [file]);
+    if (
+      loading ||
+      user.FirstName.trim().length === 0 ||
+      user.LastName.trim().length === 0 ||
+      user.Email.trim().length === 0 ||
+      user.Password.trim().length === 0
+    ) {
+      setIsDisable(true);
+    } else {
+      setIsDisable(false);
+    }
+  }, [loading, user]);
+
+  const handleFileUpload = (file: File | null) => {
+    if (!file) return;
+    setUser({ ...user, ProfilePicture: file });
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      console.log(user)
+      const formData = new FormData();
+      formData.append("FirstName", user.FirstName);
+      formData.append("LastName", user.LastName);
+      formData.append("Email", user.Email);
+      formData.append("UserName", user.UserName);
+      formData.append("Password", user.Password);
+
+      if (user.ProfilePicture) {
+        formData.append("ProfilePicture", user.ProfilePicture);
+      }
+      console.log("Form Data ", formData);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URI}/auth/signup`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setMessage({ Message: "Registration successful", isGood: true });
+      }
+    } catch (error: any) {
+      setMessage({
+        Message: error.response?.data?.message || error.message,
+        isGood: false,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
       <h2 className="font-bold text-center text-xl text-black dark:text-neutral-200">
@@ -32,32 +100,69 @@ export default function Signup() {
       <form className="my-8" onSubmit={handleSubmit}>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
           <LabelInputContainer>
-            <Label htmlFor="firstname" className="form-label required">First name</Label>
-            <Input id="firstname" placeholder="Sandeep" type="text"  />
+            <Label htmlFor="firstname" className="form-label required">
+              First name
+            </Label>
+            <Input
+              id="firstname"
+              placeholder="Sandeep"
+              type="text"
+              onChange={(e: any) => {
+                setUser({ ...user, FirstName: e.target.value.trim() });
+              }}
+            />
           </LabelInputContainer>
           <LabelInputContainer>
             <Label htmlFor="lastname">Last name</Label>
-            <Input id="lastname" placeholder="Mohapatra" type="text" />
+            <Input
+              id="lastname"
+              placeholder="Mohapatra"
+              type="text"
+              onChange={(e: any) => {
+                setUser({ ...user, LastName: e.target.value.trim() });
+              }}
+            />
           </LabelInputContainer>
         </div>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
+          <Input
+            id="email"
+            placeholder="projectmayhem@fc.com"
+            type="email"
+            onChange={(e: any) => {
+              setUser({ ...user, Email: e.target.value.trim() });
+            }}
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">UserName</Label>
-          <Input id="username" placeholder="S@ndeep002" type="text" />
+          <Input
+            id="username"
+            placeholder="S@ndeep002"
+            type="text"
+            onChange={(e: any) => {
+              setUser({ ...user, UserName: e.target.value.trim() });
+            }}
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Password</Label>
           <div className="flex items-center">
             <Input
               id="password"
-              placeholder="••••••••"
+              placeholder="password"
               type={seePassword ? "text" : "password"}
+              onChange={(e: any) => {
+                setUser({ ...user, Password: e.target.value.trim() });
+              }}
             />
-            <button onClick={()=>{setSeePassword(!seePassword)}}
-             className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-1/5 text-white rounded-md h-8 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]">
+            <button
+              onClick={() => {
+                setSeePassword(!seePassword);
+              }}
+              className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-1/5 text-white rounded-md h-8 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+            >
               {!seePassword ? "See" : "Hide"}
             </button>
           </div>
@@ -65,6 +170,8 @@ export default function Signup() {
         <FileUpload onChange={handleFileUpload} />
 
         <button
+        disabled={isDisable}
+          onClick={handleSubmit}
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
           type="submit"
         >
