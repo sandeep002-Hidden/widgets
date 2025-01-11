@@ -4,7 +4,8 @@ import cors from "cors"
 import cookieParser from "cookie-parser";
 import AuthRouter from "../route/auth.router.js"
 import prisma from "../prisma/prisma.js";
-
+import UserRouter from "../route/user.router.js"
+import authMiddleWare from "../middlewares/authMiddleWare.js"
 const app = express();
 
 
@@ -19,7 +20,7 @@ app.use(express.json());
 app.use(cookieParser())
 
 app.use("/api/v1/users/auth",AuthRouter)
-
+app.use("/api/v1/users",authMiddleWare,UserRouter)
 process.on("beforeExit", async () => {
   await prisma.$disconnect();
 });

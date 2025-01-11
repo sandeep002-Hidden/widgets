@@ -5,14 +5,12 @@ import { generateAccessAndRefreshToken } from "../../utills/generateToken.js";
 export default async function loginUser(req, res) {
   try {
     const { cred, password } = req.body;
-
     if (!cred || !password) {
       return res.status(400).json({
         message: "Email/Username and password are required.",
         success: false,
       });
     }
-
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [{ Email: cred }, { UserName: cred }],
@@ -54,16 +52,16 @@ export default async function loginUser(req, res) {
       .cookie("StellerForgeAccessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "Lax",
         path: "/",
-        maxAge: 60 * 60 * 1000, // 15 days
+        maxAge: 60 * 60 * 1000, 
       })
       .cookie("StellerForgeRefreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "Lax",
         path: "/",
-        maxAge: 15 * 24 * 60 * 60 * 1000, // 30 days
+        maxAge: 15 * 24 * 60 * 60 * 1000,
       })
       .json({
         message: "Login Successful",

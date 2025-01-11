@@ -6,8 +6,6 @@ const generateAccessToken = async (user) => {
       id: user.id,
       Email: user.Email,
       UserName: user.UserName,
-      FirstName: user.FullName,
-      LastName: user.LastName,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
@@ -44,26 +42,83 @@ const generateAccessAndRefreshToken = async (userId) => {
     return { success: false, message: error.message };
   }
 };
+
 const refreshAccessToken = async (oldRefreshToken) => {
+  console.log(refreshAccessToken)
   try {
+    if (!oldRefreshToken) {
+      console.log('No refresh token provided');
+      return { 
+        success: false, 
+        message: "Refresh token is required" 
+      };
+    }
     const decodedToken = jwt.verify(
-      incomingRefreshToken,
+      oldRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-    if (!decodedToken) {
-      return { success: false, message: "Login again to continue" };
+
+    const user = await prisma.user.findUnique({
+      where: { id: decodedToken.id },
+      select: {
+        id: true,
+        Refreshoken: true,
+        isActive: true  
+      }
+    });
+    if (!user) {
+      console.log('User not found:', decodedToken.id);
+      return { 
+        success: false, 
+        message: "User no longer exists" 
+      };
     }
-    const user = await prisma.user.findUnique(decodedToken?.id);
-    if (oldRefreshToken !== user?.Refreshoken) {
-      return { success: false, message: "Login again to continue" };
+
+    if (oldRefreshToken !== user.Refreshoken) {
+      console.log('Token mismatch for user:', decodedToken.id);
+      return { 
+        success: false, 
+        message: "Invalid refresh token" 
+      };
     }
+
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
       user.id
     );
-    return { accessToken, refreshToken };
-  } catch (error) {
 
-      return { success: false, message: error.message };
+    if (!accessToken || !refreshToken) {
+      return {
+        success: false,
+        message: "Error generating new tokens"
+      };
+    }
+    
+    return { 
+      accessToken, 
+      refreshToken,
+      success: true 
+    };
+
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return {
+        success: false,
+        message: "Refresh token has expired. Please login again"
+      };
+    }
+    
+    if (error instanceof jwt.JsonWebTokenError) {
+      return {
+        success: false,
+        message: "Invalid refresh token. Please login again"
+      };
+    }
+
+    return { 
+      success: false, 
+      message: "An error occurred while refreshing tokens" 
+    };
   }
 };
+
 export { refreshAccessToken, generateAccessAndRefreshToken };

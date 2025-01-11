@@ -8,19 +8,21 @@ generator client {
 }
 
 model User {
-  id          String    @id @default(cuid())
-  ProfilePicture String? 
-  FirstName   String
-  LastName    String
-  Email       String    @unique
-  UserName    String    @unique
-  Password    String
-  Refreshoken String?
-  FollowedBy  User[]    @relation("UserFollows")
-  Following   User[]    @relation("UserFollows")
-  Projects    Project[] @relation("UserProjects")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id             String    @id @default(cuid())
+  ProfilePicture String?
+  FirstName      String
+  LastName       String
+  Email          String    @unique
+  UserName       String    @unique
+  Password       String
+  Refreshoken    String?
+  FollowedBy     User[]    @relation("UserFollows")
+  Following      User[]    @relation("UserFollows")
+  Projects       Project[] @relation("UserProjects")
+  Otp            Int?
+  OtpExpire      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model Project {
@@ -61,9 +63,9 @@ model Folder {
 model ProjectFile {
   id        String   @id @default(cuid())
   name      String
-  path      String   
-  size      Int       
-  type      String   
+  path      String
+  size      Int
+  type      String
   projectId String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   folderId  String?

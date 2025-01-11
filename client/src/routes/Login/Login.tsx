@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import LoadingSpinner from "@/components/Loading/Loading";
 export default function Login() {
+  const navigate = useNavigate();
   const [user, setUser] = useState({
     UserNameOrEmail: "",
     Password: "",
@@ -41,8 +42,12 @@ export default function Login() {
         {
           cred: user.UserNameOrEmail,
           password: user.Password,
+        },
+        {
+          withCredentials: true,
         }
       );
+      navigate("/home")
       setMessage({ ...message, Message: response.data.message, isGood: true });
     } catch (error) {
       const err = error as AxiosError;

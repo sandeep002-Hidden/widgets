@@ -21,8 +21,6 @@ function validateUserName(username) {
 export default async function registerUser(req, res) {
   try {
     const { FirstName, LastName, Email, UserName, Password } = req.body;
-    console.log(req.body);
-    console.log(req.file);
     if (!FirstName || !LastName || !Email || !UserName || !Password) {
       return res
         .status(400)
