@@ -8,6 +8,9 @@ body{
 body::-webkit-scrollbar{
   display: none;
 }
+.noScrollBar::-webkit-scrollbar{
+  display: none;
+}
 @property --angle {
   syntax: "<angle>";
   initial-value: 0deg;

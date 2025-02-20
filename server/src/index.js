@@ -1,26 +1,27 @@
 import express from "express";
-import dotenv from "dotenv"
-import cors from "cors"
+import dotenv from "dotenv";
+import cors from "cors";
 import cookieParser from "cookie-parser";
-import AuthRouter from "../route/auth.router.js"
-import prisma from "../prisma/prisma.js";
-import UserRouter from "../route/user.router.js"
-import authMiddleWare from "../middlewares/authMiddleWare.js"
+import UserRouter from "../route/user.router.js";
+import connect from "../db/dbConfig.js";
+dotenv.config();
+await connect()
+  .then(() => {
+    console.log("connected to db");
+  })
+  .catch(() => {
+    console.log("Error in db");
+  });
 const app = express();
 
-
-app.use(cors({
-    origin:process.env.CORS_ORIGIN,
-    credentials:true
-}))
-dotenv.config({
-  path:"./env"
-})
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(express.json());
-app.use(cookieParser())
-
-app.use("/api/v1/users/auth",AuthRouter)
-app.use("/api/v1/users",authMiddleWare,UserRouter)
+app.use(cookieParser());
+app.use("/api/v1", UserRouter);
 process.on("beforeExit", async () => {
   await prisma.$disconnect();
 });

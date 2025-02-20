@@ -1,15 +1,12 @@
-import { Outlet } from 'react-router';
-import { useState, useEffect } from 'react';
-import ThemeSwitcher from '../components/Toogle/ThemeSwithcer';
-
+import { Outlet } from "react-router";
+import {LayoutContextProvider} from "@/context/layout/LayoutContext";
 
 export default function UnAuth() {
- 
-
   return (
     <div>
-      <ThemeSwitcher/>
-      <Outlet />
+      <LayoutContextProvider>
+        <Outlet />
+      </LayoutContextProvider>
     </div>
   );
 }

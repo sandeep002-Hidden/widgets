@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { upload } from "../middlewares/multer.js";
-import {getuserdetails} from"../controllers/user/user.controller.js"
+import getWidgetDetails from "../controllers/user/getWidgetDetails.js"
+import saveWidget from "../controllers/user/saveWidget.js";
 const router = Router();
-router.route("/user/getuserdetails").get(getuserdetails)
+router.route("/user/savewidget").post(saveWidget)
+router.route("/user/widgets/:id").get(getWidgetDetails)
 export default router;
